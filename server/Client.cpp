@@ -5,6 +5,7 @@
 #include <time.h>
 
 using namespace Sync;
+using namespace std;
 
 // This thread handles the connection to the server
 class ClientThread : public Thread
@@ -15,7 +16,7 @@ private:
 
 	// Data to send to server
 	ByteArray data;
-	std::string data_str;
+	string data_str;
 
 public:
 	ClientThread(Socket &socket)
@@ -29,21 +30,21 @@ public:
 
 	virtual long ThreadMain()
 	{
-		int result = socket.Open();
-		std::cout << "Please input your data (done to exit): ";
-		std::cout.flush();
+		int res = socket.Open();
+		cout << "Enter a message to send (enter done to end): ";
+		cout.flush();
 
 		// Get the data
-		std::getline(std::cin, data_str);
-		data = ByteArray(data_str);
+		getline(cin, input_str);
+		input = ByteArray(input_str);
 
 		// Write to the server
-		socket.Write(data);
+		socket.Write(input);
 
 		// Get the response
-		socket.Read(data);
-		data_str = data.ToString();
-		std::cout << "Server Response: " << data_str << std::endl;
+		socket.Read(input);
+		input_str = input.ToString();
+		cout << "Response: " << input_str << endl;
 		return 0;
 	}
 };
@@ -51,7 +52,7 @@ public:
 int main(void)
 {
 	// Welcome the user
-	std::cout << "SE3313 Lab 4 Client" << std::endl;
+	cout << "SE3313 Project" << endl;
 
 	// Create our socket
 	Socket socket("127.0.0.1", 3000);
