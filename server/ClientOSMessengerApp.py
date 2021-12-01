@@ -19,7 +19,8 @@ def send(event=None):  # Binders pass the event.
     my_msg.set("")      # Clears text field.
     global current_room
     if msg == "{quit}":
-        client_socket.send(bytes(my_username.get() + " has closed OS Messenger App!", "utf8"))
+        client_socket.send(
+            bytes(my_username.get() + " has closed OS Messenger App!", "utf8"))
         client_socket.close()
         top.quit()
         return
@@ -55,9 +56,11 @@ my_msg.set("")
 my_username = tkinter.StringVar()
 my_username.set("")
 
-scrollbar = tkinter.Scrollbar(messages_frame)  # To see through previous messages.
+# To see through previous messages.
+scrollbar = tkinter.Scrollbar(messages_frame)
 # Messages container.
-msg_list = tkinter.Listbox(messages_frame, height=30, width=100, yscrollcommand=scrollbar.set)
+msg_list = tkinter.Listbox(messages_frame, height=30,
+                           width=100, yscrollcommand=scrollbar.set)
 scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
 msg_list.pack(side=tkinter.LEFT, fill=tkinter.BOTH)
 msg_list.pack()
@@ -80,13 +83,13 @@ send_button.pack()
 top.protocol("WM_DELETE_WINDOW", on_closing)
 
 # Socket with given AWS parameters.
-HOST = "35.162.177.130"
+HOST = "127.0.0.1"
 PORT = 3005
 BUFFER_SIZE = 1024
 ADDR = (HOST, PORT)
 
 client_socket = socket(AF_INET, SOCK_STREAM)
-client_socket.connect(ADDR)
+client_socket.connect(ADDR)  
 
 # Server response of number of rooms available and generate drop down list.
 first_msg = client_socket.recv(BUFFER_SIZE).decode("utf8")
@@ -104,5 +107,6 @@ change_button.pack()
 
 receive_thread = Thread(target=receive)
 receive_thread.start()
-top.resizable(width=False, height=False)    # The client can't resize the window.
+# The client can't resize the window.
+top.resizable(width=False, height=False)
 tkinter.mainloop()

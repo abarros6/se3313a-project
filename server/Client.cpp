@@ -1,4 +1,3 @@
-
 #include "thread.h"
 #include "socket.h"
 #include <iostream>
@@ -6,8 +5,8 @@
 #include <time.h>
 
 using namespace Sync;
-using namespace std;
 
+// This thread handles the connection to the server
 class ClientThread : public Thread
 {
 private:

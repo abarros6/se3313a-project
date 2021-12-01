@@ -22,4 +22,12 @@ socket.o : socket.cpp socket.h
 	g++ -c socket.cpp -std=c++11
 
 socketserver.o : socketserver.cpp socket.h socketserver.h
-	g++ -c socketserver.cpp -std=c++11
+	g++ -c socketserver.cpp -std=c++11\
+
+clean:
+	$(RM) *.o
+	$(RM) Server
+	$(RM) Client
+
+run:
+	python ClientOSMessengerApp.py
