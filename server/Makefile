@@ -12,7 +12,7 @@ Server : Server.o thread.o socket.o socketserver.o Blockable.o
 Blockable.o : Blockable.h Blockable.cpp
 	g++ -c Blockable.cpp -std=c++11
 
-Server.o : Server.cpp thread.h socketserver.h
+Server.o : Server.cpp thread.h socketserver.h Semaphore.h
 	g++ -c Server.cpp -std=c++11
 
 thread.o : thread.cpp thread.h

@@ -8,76 +8,60 @@
 using namespace Sync;
 using namespace std;
 
-// function conn() calls itself recursively until a successful connection is made
-Socket conn()
+class ClientThread : public Thread
 {
-	Socket socket("127.0.0.1", 6758);
+private:
+	// Reference to our connected socket
+	Socket &socket;
 
-	try
+	// Data to send to server
+	ByteArray data;
+	std::string data_str;
+
+public:
+	ClientThread(Socket &socket)
+		: socket(socket)
 	{
-		socket.Open();
-		return socket;
 	}
-	catch (...)
+
+	~ClientThread()
 	{
-		cout << "connection failed please try again...\n";
-		sleep(2);
-		return conn();
 	}
-}
+
+	virtual long ThreadMain()
+	{
+		int result = socket.Open();
+		std::cout << "Please input your data (done to exit): ";
+		std::cout.flush();
+
+		// Get the data
+		std::getline(std::cin, data_str);
+		data = ByteArray(data_str);
+
+		// Write to the server
+		socket.Write(data);
+
+		// Get the response
+		socket.Read(data);
+		data_str = data.ToString();
+		std::cout << "Server Response: " << data_str << std::endl;
+		return 0;
+	}
+};
 
 int main(void)
 {
 	// Welcome the user
-	cout << "SE3313 Lab 3 Client" << std::endl;
+	std::cout << "SE3313 Lab 4 Client" << std::endl;
 
 	// Create our socket
-	Socket socket = conn();
-
-	// define a string that the client will send to be processed by the server
-	// must be defined in the scope of the main while loop and not just inside of the
-	// main function so that the text variable is assigned to each new connection that is
-	// made through calling conn()
+	Socket socket("127.0.0.1", 3000);
+	ClientThread clientThread(socket);
 	while (1)
 	{
-
-		// get the input from the user for the message being sent
-		string text;
-		cout << "\nplease enter the string you wish to send to the server \n";
-		cin >> text;
-
-		//if the input is "Done" the terminate gracefully
-		if (text == "Done")
-		{
-			socket.Write(text);
-			socket.Close();
-			break;
-		}
-		else
-		{
-			cout << "\nText recorded. Sending...\n";
-			//To write to socket and read from socket. You may use ByteArray
-			socket.Write(ByteArray(text));
-
-			ByteArray res;
-			string response;
-
-			while (socket.Read(res) == 0)
-			{
-				cout << "pending response...";
-				//check every second for the response
-				sleep(1);
-			}
-
-			// response is returned as a byte array, have to convert back to string
-			response = res.ToString();
-
-			cout << "\nResponse recieved. Displaying response: " + response + "\n";
-		}
+		sleep(1);
 	}
-
 	socket.Close();
-	cout << "\nThe connection has been closed\n";
 
 	return 0;
 }
