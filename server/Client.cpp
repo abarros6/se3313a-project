@@ -7,16 +7,16 @@
 using namespace Sync;
 using namespace std;
 
-// This thread handles the connection to the server
-class ClientThread : public Thread
+
+class ClientThread : public Thread //thread for handling connection to server
 {
 private:
-	// Reference to our connected socket
-	Socket &socket;
+	
+	Socket &socket; // ref to socket
 
-	// Data to send to server
-	ByteArray data;
-	string data_str;
+	// whats sent to the server
+	ByteArray input;
+	string input_str;
 
 public:
 	ClientThread(Socket &socket)
@@ -34,14 +34,14 @@ public:
 		cout << "Enter a message to send (enter done to end): ";
 		cout.flush();
 
-		// Get the data
+		// input collection
 		getline(cin, input_str);
 		input = ByteArray(input_str);
 
-		// Write to the server
+		//writing to socket
 		socket.Write(input);
 
-		// Get the response
+		//response collection
 		socket.Read(input);
 		input_str = input.ToString();
 		cout << "Response: " << input_str << endl;
@@ -51,10 +51,9 @@ public:
 
 int main(void)
 {
-	// Welcome the user
 	cout << "SE3313 Project" << endl;
 
-	// Create our socket
+	// socket creation
 	Socket socket("127.0.0.1", 3000);
 	ClientThread clientThread(socket);
 	while (1)
