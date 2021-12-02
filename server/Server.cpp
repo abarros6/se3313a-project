@@ -14,26 +14,16 @@ using namespace std;
 class SocketThread : public Thread
 {
 private:
-    // Reference to our connected socket.
-    Socket &socket;
+    Socket &socket;        // client socket reference
+    ByteArray data;        // a byte array of the data being sent and received
+    int numberOfChatRooms; // self explanatory
+    int port;              // the port our server is running on
+    bool &isActive;        // a reference to the current state of the server (on or off) --> (true or false)
 
-    // A byte array for the data we are receiving and sending.
-    ByteArray data;
-
-    // Global indicator of number of chat rooms.
-    int chatRoomNum;
-
-    // The port our server is running on.
-    int port;
-
-    // Reference to termination.
-    bool &terminate;
-
-    // Holder for SocketThread pointers.
-    std::vector<SocketThread *> &socketThreadsHolder;
+    vector<SocketThread *> &socketThreadsHolder; // this vector stores all the SocketThread pointers
 
 public:
-    SocketThread(Socket &socket, std::vector<SocketThread *> &clientSockThr, bool &terminate, int port) : socket(socket), socketThreadsHolder(clientSockThr), terminate(terminate), port(port)
+    SocketThread(Socket &socket, vector<SocketThread *> &clientSockThr, bool &isActive, int port) : socket(socket), socketThreadsHolder(clientSockThr), isActive(isActive), port(port)
     {
     }
 
@@ -49,13 +39,13 @@ public:
 
     const int GetChatRoom()
     {
-        return chatRoomNum;
+        return numberOfChatRooms;
     }
 
     virtual long ThreadMain()
     {
         // Parse the integer value of the port number to a string.
-        std::string stringPort = std::to_string(port);
+        ::string stringPort = to_string(port);
 
         // Semaphore generated on each socket thread by referencing port number as the name.
         Semaphore clientBlock(stringPort);
@@ -65,31 +55,31 @@ public:
             // Attempt to gather bytestream data.
             socket.Read(data);
 
-            std::string chatRoomString = data.ToString();
+            string chatRoomString = data.ToString();
             chatRoomString = chatRoomString.substr(1, chatRoomString.size() - 1);
-            chatRoomNum = std::stoi(chatRoomString);
-            std::cout << "Current chat room number from socket.Read(): " << chatRoomNum << std::endl;
+            numberOfChatRooms = ::stoi(chatRoomString);
+            cout << "Current chat room number from socket.Read(): " << numberOfChatRooms << ::endl;
 
-            while (!terminate)
+            while (!isActive)
             {
                 int socketResult = socket.Read(data);
-                // If the socket is closed on the client side, terminate this socket thread.
+                // If the socket is closed on the client side, isActive this socket thread.
                 if (socketResult == 0)
                     break;
 
-                std::string recv = data.ToString();
+                string recv = data.ToString();
                 if (recv == "shutdown\n")
                 {
                     // Mutual exclusion assurance.
                     clientBlock.Wait();
 
                     // Iterator method to select and erase this socket thread.
-                    socketThreadsHolder.erase(std::remove(socketThreadsHolder.begin(), socketThreadsHolder.end(), this), socketThreadsHolder.end());
+                    socketThreadsHolder.erase(remove(socketThreadsHolder.begin(), socketThreadsHolder.end(), this), socketThreadsHolder.end());
 
                     // Exit critical section
                     clientBlock.Signal();
 
-                    std::cout << "A client is shutting off from our server. Erase client!" << std::endl;
+                    cout << "A client is shutting off from our server. Erase client!" << endl;
                     break;
                 }
 
@@ -97,11 +87,11 @@ public:
                 if (recv[0] == '/')
                 {
                     // Split the received string.
-                    std::string stringChat = recv.substr(1, recv.size() - 1);
+                    string stringChat = recv.substr(1, recv.size() - 1);
 
                     // Parse the integer after the forward slash character, representing the chat room number.
-                    chatRoomNum = std::stoi(stringChat);
-                    std::cout << "A client just joined room " << chatRoomNum << std::endl;
+                    numberOfChatRooms = stoi(stringChat);
+                    cout << "A client just joined room " << numberOfChatRooms << ::endl;
                     continue;
                 }
 
@@ -110,7 +100,7 @@ public:
                 for (int i = 0; i < socketThreadsHolder.size(); i++)
                 {
                     SocketThread *clientSocketThread = socketThreadsHolder[i];
-                    if (clientSocketThread->GetChatRoom() == chatRoomNum)
+                    if (clientSocketThread->GetChatRoom() == numberOfChatRooms)
                     {
                         Socket &clientSocket = clientSocketThread->GetSocket();
                         ByteArray sendBa(recv);
@@ -122,16 +112,16 @@ public:
             }
         }
         // Catch string-thrown exceptions (e.g. stoi())
-        catch (std::string &s)
+        catch (string &s)
         {
-            std::cout << s << std::endl;
+            cout << s << ::endl;
         }
         // Catch thrown exceptions and distinguish them in console.
-        catch (std::exception &e)
+        catch (exception &e)
         {
-            std::cout << "A client has abruptly quit their messenger app!" << std::endl;
+            cout << "A client has abruptly quit their messenger app!" << endl;
         }
-        std::cout << "A client has left!" << std::endl;
+        cout << "A client has left!" << endl;
     }
 };
 
@@ -141,8 +131,8 @@ private:
     // Reference to socket server.
     SocketServer &server;
 
-    // std::vector<Socket*> socketsHolder;
-    std::vector<SocketThread *> socketThrHolder;
+    //vector<Socket *> socketsHolder;
+    vector<SocketThread *> socketThrHolder;
 
     // Given socket port number.
     int port;
@@ -151,11 +141,7 @@ private:
     int numberRooms;
 
     // Flag for termination.
-    bool terminate = false;
-
-    /* Alternate Version Using Delete, but requires ArrayList encapsulation.
-	Socket **socketsHolder = new Socket*[10];
-	SocketThread **sckThreadsHolder = new SocketThread*[10];*/
+    bool isActive = false;
 
 public:
     ServerThread(SocketServer &server, int numberRooms, int port)
@@ -169,11 +155,11 @@ public:
         //this->terminationEvent.Wait();
 
         // MAKE SURE TO CLOSE ALL SOCKETS (assigning null / deallocating memory).
-        //std::vector<Socket*>().swap(socketsHolder);
-        //std::vector<SocketThread*>().swap(sckThreadsHolder);
+        //vector<Socket *>().swap(socketsHolder);
+        //vector<SocketThread *>().swap(socketThrHolder);
 
-        // delete[] socketsHolder;
-        // delete[] sckThreadsHolder;
+        //delete[] socketsHolder;
+        //delete[] socketThrHolder;
 
         // Close the client sockets.
         for (auto thread : socketThrHolder)
@@ -189,8 +175,8 @@ public:
                 // This will catch all exceptions.
             }
         }
-        std::vector<SocketThread *>().swap(socketThrHolder);
-        terminate = true;
+        vector<SocketThread *>().swap(socketThrHolder);
+        isActive = true;
     }
 
     virtual long ThreadMain()
@@ -200,14 +186,14 @@ public:
             try
             {
                 // Stringify port number.
-                std::string stringPortNum = std::to_string(port);
-                std::cout << "FlexWait/Natural blocking call on client!" << std::endl;
+                string stringPortNum = to_string(port);
+                cout << "FlexWait/Natural blocking call on client!" << endl;
 
                 // Main owner semaphore to block other semaphores by name.
                 Semaphore serverBlock(stringPortNum, 1, true);
 
                 // Front-end receives number of chats through socket.
-                std::string allChats = std::to_string(numberRooms) + '\n';
+                ::string allChats = to_string(numberRooms) + '\n';
 
                 // Byte array conversion for number of chats.
                 ByteArray allChats_conv(allChats);
@@ -223,19 +209,19 @@ public:
 
                 // Pass a reference to this pointer into a new socket thread.
                 Socket &socketReference = *newConnection;
-                socketThrHolder.push_back(new SocketThread(socketReference, std::ref(socketThrHolder), terminate, port));
+                socketThrHolder.push_back(new SocketThread(socketReference, ref(socketThrHolder), isActive, port));
             }
             // Catch string-thrown exception.
-            catch (std::string error)
+            catch (string error)
             {
-                std::cout << "ERROR: " << error << std::endl;
+                cout << "ERROR: " << error << endl;
                 // Exit thread function.
                 return 1;
             }
             // In case of unexpected shutdown.
             catch (TerminationException terminationException)
             {
-                std::cout << "Server has shut down!" << std::endl;
+                cout << "Server has shut down!" << endl;
                 // Exit with exception thrown.
                 return terminationException;
             }
@@ -248,11 +234,10 @@ int main(void)
     // AWS port.
     int port = 3005;
 
-    // Admin sets value of number of chat rooms for the server.
-    int rooms = 20;
+    int rooms = 20; // the number of chat rooms
 
-    std::cout << "SE 3316 Server" << std::endl
-              << "Type done to quit the server..." << std::endl;
+    cout << "SE 3316 Server" << endl
+         << "Type done to quit the server..." << endl;
 
     // Create our server.
     SocketServer server(port);
@@ -263,12 +248,12 @@ int main(void)
     // This will wait for input to shutdown the server
     FlexWait cinWaiter(1, stdin);
     cinWaiter.Wait();
-    std::cin.get();
+    cin.get();
 
     // Cleanup, including exiting clients, when the user presses enter
 
     // Shut down and clean up the server
     server.Shutdown();
 
-    std::cout << "Good-bye!" << std::endl;
+    cout << "Good-bye!" << endl;
 }
