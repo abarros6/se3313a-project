@@ -7,11 +7,9 @@
 using namespace Sync;
 using namespace std;
 
-
 class ClientThread : public Thread //thread for handling connection to server
 {
 private:
-	
 	Socket &socket; // ref to socket
 
 	// whats sent to the server
@@ -54,7 +52,7 @@ int main(void)
 	cout << "SE3313 Project" << endl;
 
 	// socket creation
-	Socket socket("127.0.0.1", 3000);
+	Socket socket("192.168.0.143", 3000);
 	ClientThread clientThread(socket);
 	while (1)
 	{

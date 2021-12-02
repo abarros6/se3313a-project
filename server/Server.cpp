@@ -232,11 +232,11 @@ public:
 int main(void)
 {
     // AWS port.
-    int port = 3005;
+    int port = 3000;
 
     int rooms = 20; // the number of chat rooms
 
-    cout << "SE 3316 Server" << endl
+    cout << "SE 3313 Server" << endl
          << "Type done to quit the server..." << endl;
 
     // Create our server.

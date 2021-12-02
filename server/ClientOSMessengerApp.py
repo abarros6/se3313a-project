@@ -83,13 +83,13 @@ send_button.pack()
 top.protocol("WM_DELETE_WINDOW", on_closing)
 
 # Socket with given AWS parameters.
-HOST = "127.0.0.1"
-PORT = 3005
+HOST = "192.168.0.143"
+PORT = 3000
 BUFFER_SIZE = 1024
 ADDR = (HOST, PORT)
 
 client_socket = socket(AF_INET, SOCK_STREAM)
-client_socket.connect(ADDR)  
+client_socket.connect(ADDR)
 
 # Server response of number of rooms available and generate drop down list.
 first_msg = client_socket.recv(BUFFER_SIZE).decode("utf8")
