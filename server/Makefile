@@ -30,4 +30,4 @@ clean:
 	$(RM) Client
 
 run:
-	python ClientOSMessengerApp.py
+	./Server

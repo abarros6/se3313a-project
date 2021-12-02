@@ -20,7 +20,7 @@ def send(event=None):  # Binders pass the event.
     global current_room
     if msg == "{quit}":
         client_socket.send(
-            bytes(my_username.get() + " has closed OS Messenger App!", "utf8"))
+            bytes(my_username.get() + " has closed the messenger app!", "utf8"))
         client_socket.close()
         top.quit()
         return
@@ -48,7 +48,7 @@ number_of_rooms = 0
 current_room = 0
 
 top = tkinter.Tk()
-top.title("OS Messenger App")
+top.title("Messenger App")
 
 messages_frame = tkinter.Frame(top)
 my_msg = tkinter.StringVar()  # For the messages to be sent.
@@ -82,7 +82,6 @@ send_button.pack()
 
 top.protocol("WM_DELETE_WINDOW", on_closing)
 
-# Socket with given AWS parameters.
 HOST = "192.168.0.143"
 PORT = 3000
 BUFFER_SIZE = 1024
@@ -107,6 +106,7 @@ change_button.pack()
 
 receive_thread = Thread(target=receive)
 receive_thread.start()
+
 # The client can't resize the window.
 top.resizable(width=False, height=False)
 tkinter.mainloop()
