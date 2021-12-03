@@ -52,7 +52,7 @@ int main(void)
 	cout << "SE3313 Project" << endl;
 
 	// socket creation
-	Socket socket("192.168.0.143", 3000);
+	Socket socket("172.23.40.250", 3000);
 	ClientThread clientThread(socket);
 	while (1)
 	{

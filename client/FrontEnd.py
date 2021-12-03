@@ -82,7 +82,7 @@ send_button.pack()
 
 top.protocol("WM_DELETE_WINDOW", on_closing)
 
-HOST = "192.168.0.143"
+HOST = "172.23.40.250"
 PORT = 3000
 BUFFER_SIZE = 1024
 ADDR = (HOST, PORT)
